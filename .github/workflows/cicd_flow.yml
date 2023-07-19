@@ -23,6 +23,12 @@ jobs:
         push: true
         tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
+    - name: Install Azure CLI App Configuration extension
+      run: az extension add -n appconfig
+
+    - name: Import test_appsettings.json to Azure App Configuration
+      run: az appconfig kv import --name ${{ secrets.CONFIGURATION_STORE_NAME }} --format json --depth 2 --separator . --input ./test_appsettings.json --connection-string ${{ secrets.APP_CONFIGURATION_ACCESS_KEY }}
+
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
