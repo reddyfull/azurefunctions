@@ -8,14 +8,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Update Azure CLI
-      run: |
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+      env:
+        AZURE_CREDENTIALS: '{"clientId": "${{ secrets.AZURE_CLIENT_ID }}", "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}", "tenantId": "${{ secrets.AZURE_TENANT_ID }}"}'
 
     - name: Login to ACR
       run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
