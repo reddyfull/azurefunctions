@@ -14,11 +14,11 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Login to ACR
-      run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
+      run: az acr login --name srikali2009
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/myapp:${{ github.sha }}
+        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
