@@ -7,6 +7,7 @@ on:
       - Release-1.0
   pull_request:
     branches:
+      - main
       - Release-1.0
 
 jobs:
@@ -81,10 +82,10 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
   deploy_to_perf:
-    if: github.ref == 'refs/heads/Release-1.0'
     needs: deploy_to_stage
+    if: github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
-    environment:
+    environment: 
       name: 'Performance'
     steps:
     - uses: actions/checkout@v2
@@ -92,8 +93,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Login to ACR
-      run: az acr login --name srikali2009
     - name: Validate JSON
       run: jq . < perf_appsettings.json
     - name: Set Azure Web App settings
@@ -107,4 +106,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_PERF
+        publish-profile: ${{ secrets.AZURE_PERF_WEBAPP_PUBLISH_PROFILE }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
