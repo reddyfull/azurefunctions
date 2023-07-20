@@ -8,6 +8,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip azure-appconfiguration
+
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -23,19 +31,8 @@ jobs:
         push: true
         tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - name: Install dependencies
-      run: python -m pip install --upgrade pip json subprocess os 
-
-    - name: Import test_appsettings.json to Azure App Configuration
-      run: python ./appconfig_import.py
-      env:
-        CONFIGURATION_STORE_NAME: ${{ secrets.CONFIGURATION_STORE_NAME }}
-        APP_CONFIGURATION_ACCESS_KEY: ${{ secrets.APP_CONFIGURATION_ACCESS_KEY }}
+    - name: Upload app settings to Azure App Configuration
+      run: python update_appconfig.py
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
