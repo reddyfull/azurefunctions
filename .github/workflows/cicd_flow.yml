@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - Release-1.0
+  pull_request:
+    branches:
+      - Release-1.0
 
 jobs:
   build:
@@ -44,7 +47,6 @@ jobs:
 
   deploy_to_stage:
     if: github.ref == 'refs/heads/Release-1.0'
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
@@ -105,5 +107,4 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_PERF_WEBAPP_PUBLISH_PROFILE }}
-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        publish-profile: ${{ secrets.AZURE_PERF
