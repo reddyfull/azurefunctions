@@ -39,6 +39,7 @@ jobs:
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
 
   build:
+    needs: sonarScan
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: 
