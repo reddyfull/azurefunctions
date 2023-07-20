@@ -1,14 +1,18 @@
 name: CI
 
-on: 
+on:
   push:
     branches:
       - main
       - Release-1.0
+  pull_request:
+    types: [closed]
+    branches:
+      - Release-1.0
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: 
       name: 'Test'
@@ -48,10 +52,14 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-
-
+    - name: Check Website status
+      run: |
+        echo "Waiting for 5 mnts before checking website status"
+        sleep 300
+        curl -s -o /dev/null -w "%{http_code}" http://srikali2009.azurewebsites.net | grep -q "200"
+        
   deploy_to_stage:
-    if: github.ref == 'refs/heads/Release-1.0'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/Release-1.0') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     needs: build
     runs-on: ubuntu-latest
     environment:
