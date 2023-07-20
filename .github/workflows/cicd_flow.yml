@@ -26,14 +26,14 @@ jobs:
     - name: Set Azure Web App settings
       run: |
         JSON=`cat test_appsettings.json`
-        GRANT_TYPE=`echo $JSON | jq .GRANT_TYPE -r`
-        TOKEN_URL=`echo $JSON | jq .TOKEN_URL -r`
-        ORDER_SEARCH=`echo $JSON | jq .ORDER_SEARCH -r`
-        az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings GRANT_TYPE=$GRANT_TYPE TOKEN_URL=$TOKEN_URL ORDER_SEARCH=$ORDER_SEARCH
-  
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
+        done
+
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: srikali2009
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
