@@ -47,11 +47,7 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-    - name: Check Website status
-      run: |
-        echo "Waiting for 5 mnts before checking website status"
-        sleep 300
-        curl -s -o /dev/null -w "%{http_code}" http://srikali2009.azurewebsites.net | grep -q "200"
+
 
   deploy_to_stage:
     needs: build
@@ -95,8 +91,3 @@ jobs:
         publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-    - name: Check Website status
-      run: |
-        echo "Waiting for 5 mnts before checking website status"
-        sleep 300
-        curl -s -o /dev/null -w "%{http_code}" http://srikali2009.azurewebsites.net | grep -q "200"
