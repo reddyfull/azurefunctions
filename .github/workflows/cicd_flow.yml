@@ -68,7 +68,7 @@ jobs:
         JSON=`cat stage_appsettings.json`
         for key in $(jq -r 'keys[]' <<< "$JSON"); do
             value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
-            az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
+            az webapp config appsettings set --name srikalistage2009 --resource-group srikali2009 --settings $key=$value
         done
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
