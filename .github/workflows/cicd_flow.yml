@@ -1,14 +1,17 @@
 name: CI
 
-on: 
+on:
   push:
     branches:
       - main
+  pull_request:
+    types: [closed]
+    branches:
       - Release-1.0
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: 
       name: 'Test'
@@ -49,9 +52,9 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
 
-
+        
   deploy_to_stage:
-    if: github.ref == 'refs/heads/Release-1.0'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/Release-1.0') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     needs: build
     runs-on: ubuntu-latest
     environment:
