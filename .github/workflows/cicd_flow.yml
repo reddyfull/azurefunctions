@@ -2,9 +2,14 @@ name: CI
 
 on: [push]
 
+env:
+  ENVIRONMENT_NAME: 'Test'  # Change as per your needs
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ env.ENVIRONMENT_NAME }}
     steps:
     - uses: actions/checkout@v2
 
