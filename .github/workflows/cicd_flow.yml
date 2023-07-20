@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: 
-      name: 'Test'  # Change as per your needs
+      name: 'Test'
     steps:
     - uses: actions/checkout@v2
 
@@ -24,6 +24,9 @@ jobs:
         context: .
         push: true
         tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+    - name: Validate JSON
+      run: jq . < test_appsettings.json
 
     - name: Set Azure Web App settings
       run: |
