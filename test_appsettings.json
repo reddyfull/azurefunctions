@@ -1,5 +1,5 @@
 {
     "GRANT_TYPE": "client_credentials",
-    "TOKEN_URL": "https://login.microsoft.com"
+    "TOKEN_URL": "https://login.microsoft.com",
     "ORDER_SEARCH": "https://login.google.com"
 }
