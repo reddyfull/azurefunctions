@@ -14,25 +14,20 @@ jobs:
       name: 'Test'
     steps:
     - uses: actions/checkout@v2
-
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Login to ACR
       run: az acr login --name srikali2009
-
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
         tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
-
     - name: Validate JSON
       run: jq . < test_appsettings.json
-
     - name: Set Azure Web App settings
       run: |
         JSON=`cat test_appsettings.json`
@@ -40,7 +35,6 @@ jobs:
             value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
             az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
         done
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
@@ -50,31 +44,25 @@ jobs:
 
   deploy_to_stage:
     if: github.ref == 'refs/heads/Release-1.0'
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
     steps:
     - uses: actions/checkout@v2
-
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Login to ACR
       run: az acr login --name srikali2009
-
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
         tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
-
     - name: Validate JSON
       run: jq . < test_appsettings.json
-
     - name: Set Azure Web App settings
       run: |
         JSON=`cat test_appsettings.json`
@@ -82,7 +70,6 @@ jobs:
             value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
             az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
         done
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
