@@ -65,7 +65,7 @@ jobs:
       run: jq . < test_appsettings.json
     - name: Set Azure Web App settings
       run: |
-        JSON=`cat test_appsettings.json`
+        JSON=`cat stage_appsettings.json`
         for key in $(jq -r 'keys[]' <<< "$JSON"); do
             value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
             az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
