@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on: 
+  push:
+    branches:
+      - main
+      - Release-1.0
 
 jobs:
   build:
@@ -42,3 +46,57 @@ jobs:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+    - name: Check Website status
+      run: |
+        echo "Waiting for 5 mnts before checking website status"
+        sleep 300
+        curl -s -o /dev/null -w "%{http_code}" http://srikali2009.azurewebsites.net | grep -q "200"
+
+  deploy_to_stage:
+    needs: build
+    if: github.ref == 'refs/heads/Release-1.0'
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Stage'
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to ACR
+      run: az acr login --name srikali2009
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+    - name: Validate JSON
+      run: jq . < test_appsettings.json
+
+    - name: Set Azure Web App settings
+      run: |
+        JSON=`cat test_appsettings.json`
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
+        done
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_STAGE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+    - name: Check Website status
+      run: |
+        echo "Waiting for 5 mnts before checking website status"
+        sleep 300
+        curl -s -o /dev/null -w "%{http_code}" http://srikali2009.azurewebsites.net | grep -q "200"
