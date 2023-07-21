@@ -75,6 +75,7 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
   deploy_to_stage:
+    needs: sonarScan
     if: github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment:
@@ -115,6 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
+      url: ''
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
