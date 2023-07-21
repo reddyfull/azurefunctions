@@ -40,9 +40,7 @@ jobs:
     needs: sonarScan
     if: github.event.pull_request.head.ref != 'main'
     runs-on: ubuntu-latest
-    environment: 
-      name: 'Test'
-      url: ${{ secrets.TEST_ENVIRONMENT_URL }}
+    environment: 'Test'
     steps:
       - uses: actions/checkout@v2
       - name: Azure Login
@@ -89,15 +87,7 @@ jobs:
   deploy_to_stage:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: 'Stage'
-      url: ${{ secrets.STAGE_ENVIRONMENT_URL }}
-      # Requires approval in GitHub before this job can run
-      protection_rules:
-        - type: Required reviewers
-          reviewers: 
-            - reviewer1
-            - reviewer2
+    environment: 'Stage'
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
@@ -131,15 +121,7 @@ jobs:
   deploy_to_perf:
     needs: deploy_to_stage
     runs-on: ubuntu-latest
-    environment: 
-      name: 'Performance'
-      url: ${{ secrets.PERFORMANCE_ENVIRONMENT_URL }}
-      # Requires approval in GitHub before this job can run
-      protection_rules:
-        - type: Required reviewers
-          reviewers: 
-            - reviewer1
-            - reviewer2
+    environment: 'Performance'
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
