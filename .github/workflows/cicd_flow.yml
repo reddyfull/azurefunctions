@@ -116,9 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
-      url: ${{ steps.deploy_to_perf.outputs.webapp-url }} # Url is optional
-      protection_rules:
-        - minimum: 1
+      url: ''
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
