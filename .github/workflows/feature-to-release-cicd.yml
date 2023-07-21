@@ -1,0 +1,135 @@
+name: Feature to Release CI/CD
+
+on:
+  pull_request:
+    branches:
+      - Release-1.0
+    types:
+      - closed
+
+jobs:
+
+  sonarScan:
+    name: 'SonarCloud Scan'
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'feature/')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+    
+      - name: Run SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=reddyfull
+            -Dsonar.projectKey=reddyfull_azurefunctions
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
+            -Dsonar.pullrequest.github.endpoint=https://api.github.com/
+            -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.pullrequest.branch=${{ github.head_ref }}
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+
+  build:
+    needs: sonarScan
+    runs-on: ubuntu-latest
+    environment: 
+      name: 'Test'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login to ACR
+      run: az acr login --name srikali2009
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+    - name: Validate JSON
+      run: jq . < test_appsettings.json
+    - name: Set Azure Web App settings
+      run: |
+        JSON=`cat test_appsettings.json`
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
+        done
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+  deploy_to_stage:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Stage'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login to ACR
+      run: az acr login --name srikali2009
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+    - name: Validate JSON
+      run: jq . < stage_appsettings.json
+    - name: Set Azure Web App settings
+      run: |
+        JSON=`cat stage_appsettings.json`
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikalistage2009 --resource-group srikali2009 --settings $key=$value
+        done
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_STAGE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+
+  deploy_to_perf:
+    needs: deploy_to_stage
+    runs-on: ubuntu-latest
+    environment: 
+      name: 'Performance'
+      url: ''
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Validate JSON
+      run: jq . < perf_appsettings.json
+    - name: Set Azure Web App settings
+      run: |
+        JSON=`cat perf_appsettings.json`
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikaliperf2009 --resource-group srikali2009 --settings $key=$value
+        done
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_PERF_WEBAPP_PUBLISH_PROFILE }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
