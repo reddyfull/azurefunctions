@@ -42,7 +42,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
     - name: Create PR to Main
       env:
@@ -69,7 +69,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: <acr-name>.azurecr.io/myapp:${{ github.sha }}
+        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < stage_appsettings.json
     - name: Set Azure Web App settings
@@ -84,7 +84,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_STAGE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
-        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
   perf:
     needs: stage
@@ -111,4 +111,4 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_PERF_WEBAPP_PUBLISH_PROFILE }}
-        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
+        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
