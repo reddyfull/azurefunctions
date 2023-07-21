@@ -21,13 +21,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Login to ACR
-      run: az acr login --name srikali2009
+      run: az acr login --name <acr-name>
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        tags: <acr-name>.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < test_appsettings.json
     - name: Set Azure Web App settings
@@ -42,7 +42,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
 
     - name: Create PR to Main
       env:
@@ -56,7 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
-      url: ${{ secrets.STAGE_WEBAPP_URL }}
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
@@ -70,7 +69,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        tags: <acr-name>.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < stage_appsettings.json
     - name: Set Azure Web App settings
@@ -85,14 +84,13 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_STAGE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
 
   perf:
     needs: stage
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
-      url: ${{ secrets.PERF_WEBAPP_URL }}
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
@@ -113,4 +111,4 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_PERF_WEBAPP_PUBLISH_PROFILE }}
-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+        images: <acr-name>.azurecr.io/myapp:${{ github.sha }}
