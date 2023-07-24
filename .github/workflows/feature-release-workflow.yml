@@ -45,7 +45,7 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Test website
       run: |
-        until curl --output /dev/null --silent --head --fail ${{ secrets.TEST_WEBAPP_URL }}; do
+        until curl --output /dev/null --silent --head --fail 'srikali2009.azurewebsites.net'; do
             printf '.'
             sleep 5
         done
@@ -96,7 +96,7 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Test website
       run: |
-        until curl --output /dev/null --silent --head --fail ${{ secrets.STAGE_WEBAPP_URL }}; do
+        until curl --output /dev/null --silent --head --fail 'srikalistage2009.azurewebsites.net'; do
             printf '.'
             sleep 5
         done
@@ -144,7 +144,7 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Test website
       run: |
-        until curl --output /dev/null --silent --head --fail ${{ secrets.PERF_WEBAPP_URL }}; do
+        until curl --output /dev/null --silent --head --fail 'srikaliperf2009.azurewebsites.net'; do
             printf '.'
             sleep 5
         done
