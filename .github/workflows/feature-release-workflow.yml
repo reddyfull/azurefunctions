@@ -80,7 +80,7 @@ jobs:
 
       - name: Redirect all traffic to Perf
         run: |
-          az network front-door routing-rule update --resource-group srikali2009 --front-door-name srikalifd2009 --name routingRule1 --backend-pools @backend-pools-perf.json
+          az network front-door routing-rule update --resource-group srikali2009 --front-door-name srikalifd2009 --name routingRule1 --backend-pool backendpool1
 
   stage:
     needs: setup_stage
@@ -144,15 +144,15 @@ jobs:
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
-      - name: Redirect all traffic to Stage
+      - name: Redirect all traffic to Prod
         run: |
-          az network front-door routing-rule update --resource-group srikali2009 --front-door-name srikalifd2009 --name routingRule1 --backend-pools @backend-pools-stage.json
+          az network front-door routing-rule update --resource-group srikali2009 --front-door-name srikalifd2009 --name routingRule1 --backend-pool backendpool2
 
   perf:
     needs: setup_perf
     runs-on: ubuntu-latest
     environment:
-      name: 'Performance'
+      name: 'Perf'
       url: 'srikaliperf2009.azurewebsites.net'
     steps:
       - name: Checkout Code
@@ -197,19 +197,3 @@ jobs:
               printf '.'
               sleep 5
           done
-
-  revert_frontdoor:
-    needs: perf
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ env.AZURE_CREDENTIALS }}
-
-      - name: Balance traffic between Stage and Perf
-        run: |
-          az network front-door routing-rule update --resource-group srikali2009 --front-door-name srikalifd2009 --name routingRule1 --backend-pools @backend-pools-stage-perf.json
