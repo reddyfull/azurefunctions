@@ -49,12 +49,7 @@ jobs:
             printf '.'
             sleep 5
         done
-    - name: Create PR to Main
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh auth login --with-token <<< "${GH_TOKEN}"
-        gh pr create --repo ${{ github.repository }} --title "Automatic downmerge from Release-1.0 to main" --body "This is an automatic PR created after successful deployment to the 'Test' environment." --head Release-1.0 --base main
+   
 
   stage:
     needs: test
