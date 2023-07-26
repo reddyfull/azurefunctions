@@ -74,6 +74,20 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
+  test_app:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.3.0
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run Mocha tests
+      run: npm run test:mocha        
+
   deploy_to_stage:
     needs: sonarScan
     if: github.ref == 'refs/heads/Release-1.0'
