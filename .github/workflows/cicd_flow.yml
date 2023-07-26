@@ -48,14 +48,14 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-
-
   deploy_to_stage:
     needs: [build]
     if: github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
+      url: ''
+      required_approvals: 1
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
@@ -85,6 +85,7 @@ jobs:
     environment: 
       name: 'Performance'
       url: ''
+      required_approvals: 1
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
