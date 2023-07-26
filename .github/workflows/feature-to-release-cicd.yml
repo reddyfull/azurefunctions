@@ -44,15 +44,22 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-    #- name: Create PR to Main
-    #  env:
-    #    GH_TOKEN: ${{ secrets.GH_PAT }} # instead of secrets.GITHUB_TOKEN
-    #  run: |
-    #    gh pr create --repo ${{ github.repository }} --title "Automatic downmerge from Release-1.0 to main" --body "This is an automatic PR created after successful deployment to the 'Test' environment." --head Release-1.0 --base main
-        
+  test_app:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.3.0
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests
+      run: npm test
 
   stage:
-    needs: test
+    needs: test_app
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
