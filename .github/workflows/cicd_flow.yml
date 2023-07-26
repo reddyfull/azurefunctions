@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - Release-1.0
   pull_request:
+    types: [closed]
     branches:
-      - main
       - Release-1.0
+      - main
 
 jobs:
   build:
@@ -50,7 +50,7 @@ jobs:
 
   deploy_to_stage:
     needs: [build]
-    if: github.ref == 'refs/heads/Release-1.0'
+    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
@@ -78,7 +78,7 @@ jobs:
 
   deploy_to_perf:
     needs: [deploy_to_stage]
-    if: github.ref == 'refs/heads/Release-1.0'
+    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
