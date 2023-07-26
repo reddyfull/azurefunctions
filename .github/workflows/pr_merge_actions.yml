@@ -25,7 +25,7 @@ jobs:
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
           echo "PR_MERGED_BY=$PR_MERGED_BY" >> $GITHUB_ENV
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHANGESET_GITHUB }}
       - name: Append to change_set.md
         run: |
           echo "Commit ID: ${{ github.sha }}" >> .github/change_set.md
