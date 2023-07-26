@@ -1,14 +1,10 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types: [closed]
     branches:
-      - Release-1.0
-      - main
+      - Release-*
 
 jobs:
   build:
@@ -51,11 +47,11 @@ jobs:
     - name: Dump Github context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"   
+      run: echo "$GITHUB_CONTEXT"
 
   deploy_to_stage:
     needs: build
-    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/Release-1.0'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
@@ -65,12 +61,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < stage_appsettings.json
     - name: Set Azure Web App settings
@@ -89,7 +79,7 @@ jobs:
 
   deploy_to_perf:
     needs: deploy_to_stage
-    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/Release-1.0'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
@@ -99,12 +89,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < perf_appsettings.json
     - name: Set Azure Web App settings
