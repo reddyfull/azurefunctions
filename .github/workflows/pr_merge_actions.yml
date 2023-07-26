@@ -27,7 +27,7 @@ jobs:
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
           echo "PR_MERGED_BY=$PR_MERGED_BY" >> $GITHUB_ENV
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT }}
       - name: Append to change_set.md
         run: |
           echo "Commit ID: ${{ github.sha }}" >> .github/change_set.md
@@ -48,4 +48,4 @@ jobs:
           git commit -m "Update change_set.md with PR ${{ github.sha }}" 
           git push origin ${{ github.ref }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
