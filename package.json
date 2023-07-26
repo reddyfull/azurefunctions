@@ -1,0 +1,14 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.test.js",
+    "scripts": {
+      "test": "jest"
+    },
+    "dependencies": {
+      "puppeteer": "^10.4.0",
+      "jest": "^27.2.0"
+    }
+  }
+  
