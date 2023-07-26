@@ -54,8 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: 'Stage'
-      url: ''
-      required_approvals: 1
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
@@ -84,8 +82,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: 'Performance'
-      url: ''
-      required_approvals: 1
     steps:
     - uses: actions/checkout@v2
     - name: Azure Login
