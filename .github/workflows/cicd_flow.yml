@@ -13,12 +13,12 @@ on:
 jobs:
   build:
     if: github.ref == 'refs/heads/main'
-    - name: Print Github Ref
-      run: echo ${{ github.ref }}
     runs-on: ubuntu-latest
     environment: 
       name: 'Test'
     steps:
+    - name: Print Github Ref
+      run: echo ${{ github.ref }}
     - uses: actions/checkout@v2
     - name: Azure Login
       uses: azure/login@v1
