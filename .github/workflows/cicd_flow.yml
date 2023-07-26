@@ -13,6 +13,8 @@ on:
 jobs:
   build:
     if: github.ref == 'refs/heads/main'
+    - name: Print Github Ref
+      run: echo ${{ github.ref }}
     runs-on: ubuntu-latest
     environment: 
       name: 'Test'
