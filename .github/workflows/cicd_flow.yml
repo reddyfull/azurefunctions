@@ -18,6 +18,8 @@ jobs:
     steps:
     - name: Print Github Ref
       run: echo ${{ github.ref }}
+    - name: Print PR merged status
+      run: echo ${{ github.event.pull_request.merged }}
     - uses: actions/checkout@v2
     - name: Azure Login
       uses: azure/login@v1
