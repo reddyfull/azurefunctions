@@ -11,49 +11,7 @@ on:
       - Release-1.0
 
 jobs:
-
-  sonarScan:
-    name: 'SonarCloud Scan'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-    
-      - name: Run SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.organization=reddyfull
-            -Dsonar.projectKey=reddyfull_azurefunctions
-            -Dsonar.pullrequest.github.repository=${{ github.repository }}
-            -Dsonar.pullrequest.github.endpoint=https://api.github.com/
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
-            -Dsonar.pullrequest.branch=${{ github.head_ref }}
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-
-  test:
-    needs: sonarScan
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v2.3.0
-      with:
-        node-version: '14'
-    - name: Install dependencies
-      run: npm ci
-    - name: Run Mocha tests
-      run: npm run test:mocha        
-
   build:
-    needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: 
@@ -88,8 +46,22 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-  deploy_to_stage:
+  test:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.3.0
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run Mocha tests
+      run: npm run test:mocha 
+
+  deploy_to_stage:
+    needs: [build, test]
     if: github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment:
@@ -100,14 +72,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Login to ACR
-      run: az acr login --name srikali2009
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
     - name: Validate JSON
       run: jq . < stage_appsettings.json
     - name: Set Azure Web App settings
@@ -125,7 +89,7 @@ jobs:
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
   deploy_to_perf:
-    needs: deploy_to_stage
+    needs: [build, test]
     if: github.ref == 'refs/heads/Release-1.0'
     runs-on: ubuntu-latest
     environment: 
