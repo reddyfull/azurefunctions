@@ -44,11 +44,11 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 
-    - name: Create PR to Main
-      env:
-        GH_TOKEN: ${{ secrets.GH_PAT }} # instead of secrets.GITHUB_TOKEN
-      run: |
-        gh pr create --repo ${{ github.repository }} --title "Automatic downmerge from Release-1.0 to main" --body "This is an automatic PR created after successful deployment to the 'Test' environment." --head Release-1.0 --base main
+    #- name: Create PR to Main
+    #  env:
+    #    GH_TOKEN: ${{ secrets.GH_PAT }} # instead of secrets.GITHUB_TOKEN
+    #  run: |
+    #    gh pr create --repo ${{ github.repository }} --title "Automatic downmerge from Release-1.0 to main" --body "This is an automatic PR created after successful deployment to the 'Test' environment." --head Release-1.0 --base main
         
 
   stage:
