@@ -1,0 +1,42 @@
+name: PR Merge Actions
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - Release*
+
+jobs:
+  update_change_set:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+      - name: Fetch PR Details
+        run: |
+          PR_AUTHOR=$(gh pr view https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }} --json author -q ".author.login")
+          PR_MERGED_BY=$(gh pr view https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }} --json mergedBy -q ".mergedBy.login")
+          echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
+          echo "PR_MERGED_BY=$PR_MERGED_BY" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Append to change_set.md
+        run: |
+          echo "Commit ID: ${{ github.sha }}" >> .github/change_set.md
+          echo "PR Merge ID: ${{ github.event.pull_request.number }}" >> .github/change_set.md
+          echo "PR Author: $PR_AUTHOR" >> .github/change_set.md
+          echo "Approved by: $PR_MERGED_BY" >> .github/change_set.md
+          echo "" >> .github/change_set.md
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/change_set.md
+          git commit -m "Update change_set.md with PR ${GITHUB_SHA}" && git push origin ${GITHUB_REF}
