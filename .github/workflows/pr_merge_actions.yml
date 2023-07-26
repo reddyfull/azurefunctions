@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PAT }} # use PAT for checkout
       - name: Install GitHub CLI
         run: |
           curl -LO https://github.com/cli/cli/releases/download/v2.0.0/gh_2.0.0_linux_amd64.tar.gz
@@ -27,7 +25,7 @@ jobs:
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
           echo "PR_MERGED_BY=$PR_MERGED_BY" >> $GITHUB_ENV
         env:
-          GH_TOKEN: ${{ secrets.CHANGESET_GITHUB }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Append to change_set.md
         run: |
           echo "Commit ID: ${{ github.sha }}" >> .github/change_set.md
@@ -35,9 +33,17 @@ jobs:
           echo "PR Author: $PR_AUTHOR" >> .github/change_set.md
           echo "Approved by: $PR_MERGED_BY" >> .github/change_set.md
           echo "" >> .github/change_set.md
+      - name: Get and append changes
+        run: |
+          echo "Changes made:" >> .github/change_set.md
+          git diff HEAD~1 >> .github/change_set.md
+          echo "" >> .github/change_set.md
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .github/change_set.md
-          git commit -m "Update change_set.md with PR ${GITHUB_SHA}" && git push origin ${GITHUB_REF}
+          git commit -m "Update change_set.md with PR ${{ github.sha }}" 
+          git push origin ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
