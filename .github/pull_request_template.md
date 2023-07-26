@@ -1,4 +1,4 @@
-## Pull Request Checklist
+## Pull Request Checklist Type "Y" for Yes or "N" for No
 
 - [ ] I have performed a self-review of my own code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
