@@ -327,3 +327,153 @@ index b89aebd..8123984 100644
 +        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 +
 
+Commit ID: db62764daee47b61d5cc79d2bb756e2c43c556db
+PR Merge ID: 75
+PR Author: reddyfull
+Approved by: reddyfull
+PR was merged from branch: main
+PR was merged into branch: Release-1.0
+
+Changes made:
+diff --git a/.github/change_set.md b/.github/change_set.md
+index 5ecb5ef..61e67ac 100644
+--- a/.github/change_set.md
++++ b/.github/change_set.md
+@@ -327,3 +327,11 @@ index b89aebd..8123984 100644
+ +        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+ +
+ 
++Commit ID: db62764daee47b61d5cc79d2bb756e2c43c556db
++PR Merge ID: 75
++PR Author: reddyfull
++Approved by: reddyfull
++PR was merged from branch: main
++PR was merged into branch: Release-1.0
++
++Changes made:
+diff --git a/.github/workflows/deploy_on_pr_close.yml b/.github/workflows/deploy_on_pr_close.yml
+index 8123984..19722bd 100644
+--- a/.github/workflows/deploy_on_pr_close.yml
++++ b/.github/workflows/deploy_on_pr_close.yml
+@@ -1,10 +1,6 @@
+-name: CI
++name: Manual Workflow
+ 
+ on:
+-  pull_request:
+-    types: [closed]
+-    branches:
+-      - Release-*
+   workflow_dispatch:
+     inputs:
+       run_id:
+@@ -12,103 +8,10 @@ on:
+         required: true
+ 
+ jobs:
+-  build:
++  run_manual_job:
+     runs-on: ubuntu-latest
+-    environment: 
+-      name: 'Test'
+     steps:
+-    - name: Print Github Ref
+-      run: echo ${{ github.ref }}
+-    - name: Print PR merged status
+-      run: echo ${{ github.event.pull_request.merged }}
+-    - name: Print Run ID
+-      run: echo ${{ github.event.inputs.run_id }}
+-    - uses: actions/checkout@v2
+-    - name: Azure Login
+-      uses: azure/login@v1
+-      with:
+-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+-    - name: Login to ACR
+-      run: az acr login --name srikali2009
+-    - name: Build and push Docker image
+-      uses: docker/build-push-action@v2
+-      with:
+-        context: .
+-        push: true
+-        tags: srikali2009.azurecr.io/myapp:${{ github.sha }}
+-    - name: Validate JSON
+-      run: jq . < test_appsettings.json
+-    - name: Set Azure Web App settings
+-      run: |
+-        JSON=`cat test_appsettings.json`
+-        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+-            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+-            az webapp config appsettings set --name srikali2009 --resource-group srikali2009 --settings $key=$value
+-        done
+-    - name: Deploy to Azure Web App
+-      uses: azure/webapps-deploy@v2
+-      with:
+-        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+-    - name: Dump Github context
+-      env:
+-        GITHUB_CONTEXT: ${{ toJson(github) }}
+-      run: echo "$GITHUB_CONTEXT"
+-
+-  deploy_to_stage:
+-    needs: build
+-    if: github.event.pull_request.merged == true
+-    runs-on: ubuntu-latest
+-    environment:
+-      name: 'Stage'
+-    steps:
+-    - uses: actions/checkout@v2
+-    - name: Azure Login
+-      uses: azure/login@v1
+-      with:
+-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+-    - name: Validate JSON
+-      run: jq . < stage_appsettings.json
+-    - name: Set Azure Web App settings
+-      run: |
+-        JSON=`cat stage_appsettings.json`
+-        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+-            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+-            az webapp config appsettings set --name srikalistage2009 --resource-group srikali2009 --settings $key=$value
+-        done
+-    - name: Deploy to Azure Web App
+-      uses: azure/webapps-deploy@v2
+-      with:
+-        app-name: ${{ secrets.AZURE_STAGE_WEBAPP_NAME }}
+-        publish-profile: ${{ secrets.AZURE_STAGE_WEBAPP_PUBLISH_PROFILE }}
+-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+-
+-  deploy_to_perf:
+-    needs: deploy_to_stage
+-    if: github.event.pull_request.merged == true
+-    runs-on: ubuntu-latest
+-    environment: 
+-      name: 'Performance'
+-    steps:
+-    - uses: actions/checkout@v2
+-    - name: Azure Login
+-      uses: azure/login@v1
+-      with:
+-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+-    - name: Validate JSON
+-      run: jq . < perf_appsettings.json
+-    - name: Set Azure Web App settings
+-      run: |
+-        JSON=`cat perf_appsettings.json`
+-        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+-            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+-            az webapp config appsettings set --name srikaliperf2009 --resource-group srikali2009 --settings $key=$value
+-        done
+-    - name: Deploy to Azure Web App
+-      uses: azure/webapps-deploy@v2
+-      with:
+-        app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
+-        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+-        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+-
++      - name: Checkout repository
++        uses: actions/checkout@v2
++      - name: Print run_id
++        run: echo ${{ github.event.inputs.run_id }}
+
