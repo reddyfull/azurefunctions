@@ -1,0 +1,37 @@
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+      environment:
+        description: 'Environment (Test, Stage, Perf)'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Validate JSON
+      run: jq . < ${{ github.event.inputs.environment }}_appsettings.json
+    - name: Set Azure Web App settings
+      run: |
+        JSON=`cat ${{ github.event.inputs.environment }}_appsettings.json`
+        for key in $(jq -r 'keys[]' <<< "$JSON"); do
+            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
+            az webapp config appsettings set --name srikali${{ github.event.inputs.environment }}2009 --resource-group srikali2009 --settings $key=$value
+        done
+    - name: Dump Github context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
