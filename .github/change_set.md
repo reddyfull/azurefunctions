@@ -627,3 +627,90 @@ index 19722bd..8123984 100644
 +        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
 +
 
+Commit ID: 0614248863179d5b301aa8690f91d0aeeb7ab690
+PR Merge ID: 77
+PR Author: reddyfull
+Approved by: reddyfull
+PR was merged from branch: main
+PR was merged into branch: Release-1.0
+
+Changes made:
+diff --git a/.github/change_set.md b/.github/change_set.md
+index 4c6d4c0..2939ee0 100644
+--- a/.github/change_set.md
++++ b/.github/change_set.md
+@@ -627,3 +627,11 @@ index 19722bd..8123984 100644
+ +        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
+ +
+ 
++Commit ID: 0614248863179d5b301aa8690f91d0aeeb7ab690
++PR Merge ID: 77
++PR Author: reddyfull
++Approved by: reddyfull
++PR was merged from branch: main
++PR was merged into branch: Release-1.0
++
++Changes made:
+diff --git a/.github/workflows/config_manual.yml b/.github/workflows/config_manual.yml
+new file mode 100644
+index 0000000..4091db9
+--- /dev/null
++++ b/.github/workflows/config_manual.yml
+@@ -0,0 +1,44 @@
++name: Manual Config Deployment
++
++on:
++  workflow_dispatch:
++    inputs:
++      fileName:
++        description: 'JSON file name (test, stage, perf)'
++        required: true
++
++jobs:
++  deploy:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout code
++        uses: actions/checkout@v2
++        with:
++          ref: ${{ github.event.inputs.branch }}
++
++      - name: Azure Login
++        uses: azure/login@v1
++        with:
++          creds: ${{ secrets.AZURE_CREDENTIALS }}
++
++      - name: Validate JSON
++        run: jq . < ${{ github.event.inputs.fileName }}_appsettings.json
++
++      - name: Set Azure Web App settings
++        run: |
++          JSON=`cat ${{ github.event.inputs.fileName }}_appsettings.json`
++          APP_NAME=""
++          if [ "${{ github.event.inputs.fileName }}" = "test" ]
++          then
++            APP_NAME="srikali2009"
++          elif [ "${{ github.event.inputs.fileName }}" = "stage" ]
++          then
++            APP_NAME="srikalistage2009"
++          elif [ "${{ github.event.inputs.fileName }}" = "perf" ]
++          then
++            APP_NAME="srikaliperf2009"
++          fi
++          for key in $(jq -r 'keys[]' <<< "$JSON"); do
++            value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
++            az webapp config appsettings set --name $APP_NAME --resource-group srikali2009 --settings $key=$value
++          done
+diff --git a/test_appsettings.json b/test_appsettings.json
+index 1389a9c..c856521 100644
+--- a/test_appsettings.json
++++ b/test_appsettings.json
+@@ -1,5 +1,6 @@
+ {
+     "GRANT_TYPE": "client_credentials",
+     "TOKEN_URL": "https://test.microsoft.com",
+-    "ORDER_SEARCH": "https://test.google.com"
++    "ORDER_SEARCH": "https://test.google.com",
++    "Name": "Sri"
+ }
+
