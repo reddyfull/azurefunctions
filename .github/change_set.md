@@ -290,3 +290,40 @@ index 0000000..b89aebd
 +        app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
 +        publish-profile: ${{ secrets.AZURE
 
+Commit ID: fd6ac20eb7316dca4bf3a44ea2fd25f2b0f364b5
+PR Merge ID: 74
+PR Author: reddyfull
+Approved by: reddyfull
+PR was merged from branch: main
+PR was merged into branch: Release-1.0
+
+Changes made:
+diff --git a/.github/change_set.md b/.github/change_set.md
+index a658ce3..000eec3 100644
+--- a/.github/change_set.md
++++ b/.github/change_set.md
+@@ -290,3 +290,11 @@ index 0000000..b89aebd
+ +        app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
+ +        publish-profile: ${{ secrets.AZURE
+ 
++Commit ID: fd6ac20eb7316dca4bf3a44ea2fd25f2b0f364b5
++PR Merge ID: 74
++PR Author: reddyfull
++Approved by: reddyfull
++PR was merged from branch: main
++PR was merged into branch: Release-1.0
++
++Changes made:
+diff --git a/.github/workflows/deploy_on_pr_close.yml b/.github/workflows/deploy_on_pr_close.yml
+index b89aebd..8123984 100644
+--- a/.github/workflows/deploy_on_pr_close.yml
++++ b/.github/workflows/deploy_on_pr_close.yml
+@@ -109,4 +109,6 @@ jobs:
+       uses: azure/webapps-deploy@v2
+       with:
+         app-name: ${{ secrets.AZURE_PERF_WEBAPP_NAME }}
+-        publish-profile: ${{ secrets.AZURE
++        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
++        images: srikali2009.azurecr.io/myapp:${{ github.sha }}
++
+
