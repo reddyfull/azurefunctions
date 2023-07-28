@@ -1,8 +1,11 @@
-name: Manual Config Deployment
+name: Manual WebApp Config Deployment
 
 on:
   workflow_dispatch:
     inputs:
+      branch:
+        description: 'Branch to checkout'
+        required: true
       fileName:
         description: 'JSON file name (test, stage, perf)'
         required: true
@@ -42,3 +45,18 @@ jobs:
             value=$(jq -r --arg key "$key" '.[$key]' <<< "$JSON")
             az webapp config appsettings set --name $APP_NAME --resource-group srikali2009 --settings $key=$value
           done
+
+      - name: Restart Azure Web App
+        run: |
+          APP_NAME=""
+          if [ "${{ github.event.inputs.fileName }}" = "test" ]
+          then
+            APP_NAME="srikali2009"
+          elif [ "${{ github.event.inputs.fileName }}" = "stage" ]
+          then
+            APP_NAME="srikalistage2009"
+          elif [ "${{ github.event.inputs.fileName }}" = "perf" ]
+          then
+            APP_NAME="srikaliperf2009"
+          fi
+          az webapp restart --name $APP_NAME --resource-group srikali2009
