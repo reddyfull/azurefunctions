@@ -2,5 +2,6 @@
     "GRANT_TYPE": "client_credentials",
     "TOKEN_URL": "https://stage.microsoft.com",
     "ORDER_SEARCH": "https://stage.google.com",
-    "Type": "Stage"
+    "Type": "Stage",
+    "Restart_Stage": "Restart"
 }

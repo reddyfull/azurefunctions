@@ -2,5 +2,6 @@
     "GRANT_TYPE": "client_credentials",
     "TOKEN_URL": "https://perf.microsoft.com",
     "ORDER_SEARCH": "https://perf.google.com",
-    "Orders": "Close"
+    "Orders": "Close",
+    "Restart_Perf": "Restart"
 }
