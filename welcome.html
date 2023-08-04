@@ -4,20 +4,31 @@
         <title>Welcome</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
-            $(document).ready(function() {
-                const functionUrl = 'https://srikali2009functionapp.azurewebsites.net/api/dynamicforms'; // replace with your function url
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const formContainer = document.getElementById('form-container');
 
-                // Fetch configuration and generate form
-                $.getJSON(functionUrl, function(data) {
-                    var form = $('<form></form>');
+                fetch('https://srikali2009funcaf14.blob.core.windows.net/srikali2009blob/config.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        const form = document.createElement('form');
+                        
+                        data.fields.forEach(field => {
+                            const label = document.createElement('label');
+                            label.textContent = field.label;
+                            form.appendChild(label);
 
-                    $.each(data.fields, function(i, field) {
-                        form.append('<label>' + field.label + '</label><br>');
-                        form.append('<input type="' + field.type + '" name="' + field.name + '"><br>');
+                            const input = document.createElement('input');
+                            input.type = field.type;
+                            input.name = field.name;
+                            form.appendChild(input);
+                        });
+
+                        const submitButton = document.createElement('input');
+                        submitButton.type = 'submit';
+                        form.appendChild(submitButton);
+
+                        formContainer.appendChild(form);
                     });
-
-                    $('#form-container').append(form);
-                });
             });
         </script>
     </head>
