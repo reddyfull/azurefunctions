@@ -25,7 +25,7 @@ jobs:
         pip install azure-identity azure-mgmt-frontdoor
 
     - name: Set environment variables from JSON
-      run: echo '${{ secrets.FRONT_DOOR_CONFIG }}' | jq -r 'to_entries | .[] | .key + "=" + .value' >> $GITHUB_ENV
+      run: echo '${{ secrets.FRONT_DOOR_CONFIG }}' > config.json && export $(jq -r 'to_entries | .[] | .key + "=" + .value' config.json)
 
     - name: Run frontdoor.py script
       run: python frontdoor.py ${{ github.event.inputs.action }}
