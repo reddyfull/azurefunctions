@@ -35,6 +35,6 @@ jobs:
     - name: Run frontdoor.py script
       run: python frontdoor.py ${{ github.event.inputs.action }}
       env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        AZURE_CLIENT_ID: '14eccf58-3531-4885-be17-832bf6113a70'
+        AZURE_CLIENT_SECRET: 'WuP8Q~TEuD3SffMb.HZKsqsmmndngekJAoFTlcA_'
+        AZURE_TENANT_ID: '3bbba269-3090-479c-aed1-5e3838e16511'
