@@ -4,9 +4,9 @@ import os
 import sys
 
 # Retrieve the environment variables
-subscription_id = os.environ['SUBSCRIPTION_ID']
-resource_group = os.environ['RESOURCE_GROUP']
-front_door_name = os.environ['FRONT_DOOR_NAME']
+subscription_id = '217d2bdc-2706-4aa7-be71-457045f1baba'
+resource_group = 'srikali2009'
+front_door_name = 'srikali2009fd'
 backend_pool_name = 'DefaultBackendPool'
 
 def main(action):
