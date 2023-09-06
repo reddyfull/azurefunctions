@@ -1,0 +1,46 @@
+name: Automated Code Review
+
+on:
+  push:
+    branches:
+      - main # or your default branch
+  pull_request:
+    branches:
+      - main # or your default branch
+
+jobs:
+  chatgptComment:
+    runs-on: ubuntu-latest
+    name: Add ChatGPT Comment
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Generate Comment via ChatGPT and Post
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        # Extract PR number and Repo details from GitHub context
+        PR_NUMBER=$(jq -r ".number" $GITHUB_EVENT_PATH)
+        REPO_NAME=${{ github.repository }}
+
+        # Generate prompt for ChatGPT
+        PROMPT="Summarize the changes in PR #${PR_NUMBER} for repo ${REPO_NAME}"
+
+        # Call OpenAI API
+        GENERATED_COMMENT=$(curl -s -H "Authorization: Bearer ${OPENAI_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"prompt":"'"${PROMPT}"'","max_tokens":50}' \
+          https://api.openai.com/v1/engines/davinci-codex/completions)
+
+        # Extract the generated text from API response (assuming it's under 'choices[0].text')
+        COMMENT_TEXT=$(echo $GENERATED_COMMENT | jq -r '.choices[0].text')
+
+        # Post the comment back to the PR (note: you'll have to handle "push" case separately)
+        if [[ ! -z "$PR_NUMBER" ]]; then
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"body": "'"${COMMENT_TEXT}"'"}' \
+            https://api.github.com/repos/${REPO_NAME}/issues/${PR_NUMBER}/comments
+        fi

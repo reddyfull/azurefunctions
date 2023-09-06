@@ -1,5 +1,16 @@
 {
     "githubPullRequests.ignoredPullRequestBranches": [
         "main"
-    ]
+    ],
+    "git.ignoreLimitWarning": true,
+    "sonarlint.connectedMode.connections.sonarcloud": [
+        {
+            "serverId": "sonarcloud",
+            "token": "24bff37ea1a3d28062bef416e5489f8369a4be53"
+        }
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "azurefunctions",
+        "projectKey": "reddyfull_azurefunctions"
+    }
 }

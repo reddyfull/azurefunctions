@@ -1,0 +1,40 @@
+name: Frontdoor Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to take on Front Door backend (1, 2, or UP)'
+        required: true
+
+jobs:
+  frontdoor-action:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install azure-identity azure-mgmt-frontdoor
+
+    - name: Set environment variables from JSON
+      run: |
+        echo '${{ secrets.FRONT_DOOR_CONFIG }}' > config.json
+        while IFS="=" read -r key value
+        do
+          echo "$key=$value" >> $GITHUB_ENV
+        done < <(jq -r 'to_entries | .[] | .key + "=" + .value' config.json)
+
+    - name: Run frontdoor.py script
+      run: python frontdoor.py ${{ github.event.inputs.action }}
+      env:
+        AZURE_CLIENT_ID: '14eccf58-3531-4885-be17-832bf6113a70'
+        AZURE_CLIENT_SECRET: 'WuP8Q~TEuD3SffMb.HZKsqsmmndngekJAoFTlcA_'
+        AZURE_TENANT_ID: '3bbba269-3090-479c-aed1-5e3838e16511'

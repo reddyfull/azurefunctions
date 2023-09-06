@@ -1,10 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Welcome to Test ChangeSEt 4 to 5</title>
-</head>
-<body>
-    <h1>Changeset Testing</h1>
-    <a href="https://www.google.com" target="_blank">Welcome to Google</a>
-</body>
+<html>
+    <head>
+        <title>Welcome</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const formContainer = document.getElementById('form-container');
+
+                fetch('https://srikali2009funcaf14.blob.core.windows.net/srikali2009blob/config.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        const form = document.createElement('form');
+                        
+                        data.fields.forEach(field => {
+                            const label = document.createElement('label');
+                            label.textContent = field.label;
+                            form.appendChild(label);
+
+                            const input = document.createElement('input');
+                            input.type = field.type;
+                            input.name = field.name;
+                            form.appendChild(input);
+                        });
+
+                        const submitButton = document.createElement('input');
+                        submitButton.type = 'submit';
+                        form.appendChild(submitButton);
+
+                        formContainer.appendChild(form);
+                    });
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Welcome!</h1>
+        <div id="form-container"></div>
+    </body>
 </html>
